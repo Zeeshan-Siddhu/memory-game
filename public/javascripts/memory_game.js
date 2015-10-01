@@ -1,215 +1,233 @@
-$(document).ready(function(){
-  var selectedCard    = [-1, -1];
-  var focusedCard     = [0, 0];
-  var rowIndex        = 0;
-  var columnIndex     = 1;
-  var maxColumns      = 4; // 0-4
-  var maxRows         = 4; // 0-4
-  var cards           = [];
-  var totalMoves      = 0;
-  var successfulMoves = 0;
-  var score           = 0.0;
+(function(){
+  var app = angular.module('memory_game', ['ngRoute', 'ngDialog']);
 
-  var colors = ['colour1','colour1','colour2','colour2','colour3','colour3','colour4','colour4',
-           'colour5','colour5','colour6','colour6','colour7','colour7','colour8','colour8'];
+  angular.module('memory_game').directive('controls', function() {
+  return {
+    restrict: 'E',
+    replace: true,
+    scope: true,
+    link:    function postLink(scope, iElement, iAttrs){
+      jQuery(document).on('keydown', function(e){
+         scope.$apply(scope.keyDown(e));
+       });
+    }
+  };
+});
 
-  initializeGame();
 
-  function doShuffle(array){
-      for(var j, x, i = array.length; i; j = Math.floor(Math.random() * i), x = array[--i], array[i] = array[j], array[j] = x);
-      return array;
-  }
-  function initializeGame(){
-    var board = $('.board');
-    cards = doShuffle(colors);
-    console.log(cards)
-    board.html('');
-    for(var i=0, k=0; i < maxRows; i++){
-      var myDiv = $("<div/>");
-      for(var j=0; j < maxColumns; j++, k++){
-        // if(k == 0 ){
-        //   board.append('<div class=row>');
-        // }
-        myDiv.append('<div data-row= "' + i +'"  data-column = "' + j +'" class="card flipped '  + cards[k] + '">' + '</div>');
-        // if(k == 0 ){
-        //   board.append('</div');
-        // }
+  /*
+   * Routing engine for the app.
+   * Defines views and their respective controllers based on current url location.
+   * All pages and their respective controllers must be defined here and not in views.
+  */
+  angular.module('memory_game').config(['$routeProvider', function($routeProvider) {
+    $routeProvider.
+      when('/load_game', {
+        templateUrl: '/partials/load_game.html',
+        controller: 'GameCtrl'
+      })
+  }]);
+
+
+  angular.module('memory_game').config(['ngDialogProvider', function (ngDialogProvider) {
+      ngDialogProvider.setDefaults({
+          className: 'ngdialog-theme-default',
+          showClose: false,
+          closeByDocument: false,
+          closeByEscape: false
+      });
+  }]);
+
+  /* 
+   * Set Default headers for ajax requests.
+   * Angular httpProvider will send all requests using these headers
+  */
+  angular.module('memory_game').config(["$httpProvider", function(provider){
+    provider.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+    provider.defaults.headers.put["Content-Type"] = "application/x-www-form-urlencoded";
+    provider.defaults.headers.patch["Content-Type"] = "application/x-www-form-urlencoded";
+    provider.defaults.headers.common['X-CSRF-Token'] = $('meta[name=csrf-token]').attr('content');
+  }]);
+
+
+  angular.module('memory_game').controller('GameCtrl', function($scope, ngDialog, $http, $route) {
+
+    $scope.highScores      = [];
+    $scope.ranking         = 0;
+    $scope.userMaxScore    = 0;
+
+    $scope.openGetInfoDialog  = function(){
+      $(document).off("keydown");
+      ngDialog.open({ template: 'get-info.html',
+          disableAnimation: true, scope: $scope });
+    }
+
+    $scope.showHighScoresAndRanking = function(){
+      ngDialog.open({ template: 'show-high-scores.html', showClose: true,
+          closeByDocument: true,
+          closeByEscape: true,
+          scope: $scope });
+    }
+
+
+    $scope.sendScoreToServer = function(userName, userEmail){
+      request = $http({
+        url: '/games/add_score_and_get_rankings.json',
+        dataType: "json",
+        data: "user_name=" + userName + "&email=" + userEmail + "&score=" + $scope.score,
+        method: 'POST'
+      });
+
+      request.success(function(data){
+        $scope.highScores   = data.scores;
+        $scope.ranking      = data.ranking;
+        $scope.userMaxScore = data.user_max_score;
+        ngDialog.closeAll();
+        $scope.showHighScoresAndRanking();
+
+      });  
+    }
+
+    $scope.doShuffle = function(array){
+        for(var j, x, i = array.length; i; j = Math.floor(Math.random() * i), x = array[--i], array[i] = array[j], array[j] = x);
+        return array;
+    }
+
+    //extend array class to add Convert to 2D array 
+    Array.prototype.reshape = function() {
+      var copy = this.slice(0); // Copy all elements.
+      this.length = 0; // Clear out existing array.
+      while(copy.length) this.push(copy.splice(0,4));
+    };
+
+    $scope.initializeGame = function(e){
+      ngDialog.closeAll();
+      $scope.selectedCard    = [-1, -1];
+      $scope.focusedCard     = [0, 0];
+      $scope.rowIndex        = 0;
+      $scope.columnIndex     = 1;
+      $scope.maxColumns      = 4; // 0-4
+      $scope.maxRows         = 4; // 0-4
+      $scope.totalMoves      = 0;
+      $scope.successfulMoves = 0;
+      $scope.score           = 0;
+      $scope.colors = ['colour1','colour1','colour2','colour2','colour3','colour3','colour4','colour4',
+             'colour5','colour5','colour6','colour6','colour7','colour7','colour8','colour8'];
+      $('.loading_page').remove();
+      var board = $('.board');
+      $scope.colors = $scope.doShuffle($scope.colors);
+      $scope.colors.reshape();
+      board.html('');
+      for(var i=0, k=0; i < $scope.maxRows; i++){
+        for(var j=0; j < $scope.maxColumns; j++){
+          board.append('<div data-row= "' + i +'"  data-column = "' + j +'" class="card flipped '  + $scope.colors[i][j] + '">' + '</div>');
+        }
       }
-      console.log(myDiv);
-      // myDiv.addClass('row');
-      board.append(myDiv);
+      $scope.changeView();
+
     }
-    changeView();
 
-  }
-
-  function getJquerySelectorForCard(card){
-    return "[data-row=" + "'" + card[rowIndex] + "'" + "][data-column=" + "'" + card[columnIndex] + "'" + "]";
-  }
-
-  function changeView(){
-    $('.card').removeClass('focused');
-    // if(focusedCard != selectedCard){
-      $(getJquerySelectorForCard(focusedCard)).addClass('focused');
-    // }
-    // if(selectedCard[rowIndex] >= 0){
-    //   flipCard(selectedCard);
-    // }
-  }
-
-  function flipCard(card){
-    $(getJquerySelectorForCard(card)).toggleClass('flipped');
-  }
-
-  function incrementMoves(successful){
-    if(successful){
-      successfulMoves++;
+    $scope.getJquerySelectorForCard = function(card){
+      return "[data-row=" + "'" + card[$scope.rowIndex] + "'" + "][data-column=" + "'" + card[$scope.columnIndex] + "'" + "]";
     }
-    totalMoves++;
-    score = (successfulMoves / totalMoves) * 100;
-  }
 
-
-
-  function freezeCard(card){
-    $(getJquerySelectorForCard(card)).addClass('frozen');
-  }
-
-  function compareCards(previousCard, focusedCard){
-    previousCardObject = cards[previousCard[rowIndex], previousCard[columnIndex]];
-    focusedCardObject  = cards[focusedCard[rowIndex], focusedCard[columnIndex]];
-    console.log(previousCardObject);
-    console.log(focusedCardObject);
-    if(previousCardObject == focusedCardObject){
-      freezeCard(previousCard);
-      freezeCard(focusedCard);
-      incrementMoves(true);
+    $scope.changeView = function() {
+      $('.card').removeClass('focused');
+      $($scope.getJquerySelectorForCard($scope.focusedCard)).addClass('focused');
     }
-    else{
-      console.log(totalMoves);
-      flipCard(previousCard);
-      flipCard(focusedCard);
-      incrementMoves(false);
+
+    $scope.flipCard = function(card){
+      $($scope.getJquerySelectorForCard(card)).toggleClass('flipped');
     }
-    selectedCard = [-1, -1];
-  }
 
-  function isFirstCardSelected(){
-    return selectedCard[rowIndex] >= 0;
-  }
-
-  //keyboard events starts and ends here
-
-  $(document).keydown(function(e) {
-    switch(e.which) {
-      case 37: // left
-        if(focusedCard[columnIndex] - 1 >= 0){
-          focusedCard = [focusedCard[rowIndex], focusedCard[columnIndex] - 1];
-        }
-      break;
-
-      case 38: // up
-        if(focusedCard[rowIndex] - 1 >= 0){
-          focusedCard = [focusedCard[rowIndex] - 1, focusedCard[columnIndex]];
-        }
-      break;
-
-      case 39: // right
-        if(focusedCard[columnIndex] + 1 < maxColumns){
-          focusedCard = [focusedCard[rowIndex], focusedCard[columnIndex] + 1];
-        }
-      break;
-
-      case 40: // down
-        if(focusedCard[rowIndex] + 1 < maxRows){
-          focusedCard = [focusedCard[rowIndex] + 1, focusedCard[columnIndex]];   
-        }
-      break;
-
-      case 13:
-        if(isFirstCardSelected()){
-          flipCard(focusedCard);
-          compareCards(selectedCard, focusedCard);
-        }
-        else{
-          selectedCard = focusedCard;
-          flipCard(selectedCard);
-        }
-      break;
+    $scope.incrementMoves = function(successful){
+      if(successful){
+        $scope.successfulMoves++;
+      }
+      $scope.totalMoves++;
+      $scope.score = ($scope.successfulMoves / $scope.totalMoves) * 100;
     }
-    changeView();
-    e.preventDefault(); // prevent the default action (scroll / move caret)
+
+
+
+    $scope.freezeCard = function(card){
+      $($scope.getJquerySelectorForCard(card)).addClass('frozen');
+    }
+
+    $scope.compareCards = function(previousCard, focusedCard){
+      var previousCardObject = $scope.colors[previousCard[$scope.rowIndex]][previousCard[$scope.columnIndex]];
+      var focusedCardObject  = $scope.colors[focusedCard[$scope.rowIndex]][focusedCard[$scope.columnIndex]];
+
+      if(previousCardObject == focusedCardObject){
+        $scope.freezeCard(previousCard);
+        $scope.freezeCard(focusedCard);
+        $scope.incrementMoves(true);
+        if($('.frozen').length == 16){
+          $scope.openGetInfoDialog();
+        }
+       
+      }
+      else{
+        setTimeout(function(){
+                        $scope.flipCard(previousCard);
+                        $scope.flipCard(focusedCard);
+                      }, 1000);
+        
+        
+        $scope.incrementMoves(false);
+      }
+      $scope.selectedCard = [-1, -1];
+    }
+
+    $scope.isFirstCardSelected = function(){
+      return $scope.selectedCard[$scope.rowIndex] >= 0;
+    }
+
+    $scope.keyDown = function(e) {
+        switch(e.which) {
+          case 37: // left
+            if($scope.focusedCard[$scope.columnIndex] - 1 >= 0){
+              $scope.focusedCard = [$scope.focusedCard[$scope.rowIndex], $scope.focusedCard[$scope.columnIndex] - 1];
+            }
+          break;
+
+          case 38: // up
+            if($scope.focusedCard[$scope.rowIndex] - 1 >= 0){
+              $scope.focusedCard = [$scope.focusedCard[$scope.rowIndex] - 1, $scope.focusedCard[$scope.columnIndex]];
+            }
+          break;
+
+          case 39: // right
+            if($scope.focusedCard[$scope.columnIndex] + 1 < $scope.maxColumns){
+              $scope.focusedCard = [$scope.focusedCard[$scope.rowIndex], $scope.focusedCard[$scope.columnIndex] + 1];
+            }
+          break;
+
+          case 40: // down
+            if($scope.focusedCard[$scope.rowIndex] + 1 < $scope.maxRows){
+              $scope.focusedCard = [$scope.focusedCard[$scope.rowIndex] + 1, $scope.focusedCard[$scope.columnIndex]];
+            }
+          break;
+
+          case 13:
+            if($($scope.getJquerySelectorForCard($scope.focusedCard)).hasClass('frozen')){
+              break;
+            }
+            if($scope.isFirstCardSelected()){
+              $scope.flipCard($scope.focusedCard);
+              $scope.compareCards($scope.selectedCard, $scope.focusedCard);
+            }
+            else{
+              $scope.selectedCard = $scope.focusedCard;
+              $scope.flipCard($scope.selectedCard);
+            }
+          break;
+        }
+        $scope.changeView();
+    };
+
+
   });
 
 
-});  
-
-// // on keypress
-//   // if key is left arrow key
-//   if(focusedCard[columnIndex] - 1 >= 0)
-//     focusedCard = [focusedCard[rowIndex], focusedCard[columnIndex] - 1];
-//   // if key is right arrow key
-//   if(focusedCard[columnIndex] + 1 <= maxColumns)
-//     focusedCard = [focusedCard[rowIndex], focusedCard[columnIndex] + 1];
-//   // if key is up arrow key
-//   if(focusedCard[rowIndex] - 1 >= 0)
-//     focusedCard = [focusedCard[rowIndex] - 1, focusedCard[columnIndex]];
-//   // if key is down arrow key
-//   if(focusedCard[rowIndex] + 1 <= maxRows)
-//     focusedCard = [focusedCard[rowIndex] + 1, focusedCard[columnIndex]];
-//   // if key is enter and card class is not frozen
-//     if(isFirstCardSelected()){
-//       compareCards(selectedCard, focusedCard);
-//     }
-//     else{
-//       selectedCard = focusedCard;
-//       flipCard(selectedCard);
-//     }
-//   changeView();
-
-
-// function changeView(){
-//   $('.card').removeClass('focused');
-//   $(getJquerySelectorForCard(focusedCard)).addClass('focused');
-//   if(rowNumber >= 0){
-//     $(getJquerySelectorForCard(selectedCard)).addClass('selected');
-//   }
-// }
-
-// function getJquerySelectorForCard(card){
-//   return ".card[data-row=" + card[rowIndex] + "' data-column='" + card[columnIndex] + "'";
-// }
-
-// function incrementMoves(successful){
-//   if(successful){
-//     successfulMoves++;
-//   }
-//   totalMoves++;
-//   score = (successfulMoves / totalMoves) * 100;
-// }
-
-
-
-// function freezeCard(card){
-//   $(getJquerySelectorForCard(card)).addClass('frozen');
-// }
-
-// function compareCards(previousCard, focusedCard){
-//   previousCardObject = cards[previousCard[rowIndex], previousCard[columnIndex]];
-//   focusedCardObject  = cards[focusedCard[rowIndex], focusedCard[columnIndex]];
-//   if(previousCardObject.color == focusedCardObject.color){
-//     freezeCard(previousCard);
-//     freezeCard(focusedCard);
-//     incrementMoves(true);
-//   }
-//   else{
-//     flipCard(previousCard);
-//     flipCard(focusedCard);
-//     incrementMoves(false);
-//   }
-//   selectedCard = [-1, -1];
-// }
-
-// function isFirstCardSelected(){
-//   selectedCard[rowIndex] >= 0;
-// }
+})();

@@ -1,14 +1,16 @@
-<div style="width: 720px; max-width: 720px; background-color: grey; padding: 70px 50px; margin: auto;">
-  <div style="width: 260px; display: inline-block; float: right;">
-    <div class="logo"></div>
-    <div class='game-info' style="background-color: white;">
-      <strong>Score</strong>
-      <p>3146465</p>
-      <p>Only keys are supported</p>
-    </div>
+<!DOCTYPE html>
+<html ng-app="memory_game">
+  <head>
+  </head>
+  <body>
+    <div class="loading_page">
+      <div style="width: 720px; max-width: 720px; background-color: grey; padding: 70px 50px; margin: auto;">
+        <img src="/images/logo.png" alt="..." class="img-circle" height="165px" width="165px">
+        <a class="btn btn-success btn-lg" href="#load_game"> Play </a>
+      </div>
+    </div>  
     <div>
-      <button>Reset</button>
+      <div ng-view></div>
     </div>
-  </div>
-  <div class='board' style="width: 360px; display: inline-block;"></div>
-</div>
+  </body>
+</html>  

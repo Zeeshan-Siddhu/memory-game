@@ -29,7 +29,8 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'byebug'
+  gem 'pry', '=0.10.1' # https://github.com/pry/pry/blob/master/CHANGELOG.md
+  gem 'pry-rails', '=0.3.3' 
 
   # Access an IRB console on exception pages or by using <%= console %> in views
   gem 'web-console', '~> 2.0'
