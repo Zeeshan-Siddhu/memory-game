@@ -9,12 +9,14 @@
         <p>Only keys are supported</p>
       </div>
       <div>
-        <button class="btn btn-warning btn-sm btn-block" ng-click="initializeGame()">Reset</button>
+        <button class="btn btn-warning btn-sm btn-block" id='resetBtn' ng-click="resetGame()">Reset</button>
       </div>
     </div>
     <div class='board' style="width: 360px; display: inline-block;"></div>
   </div>
 </div>
+
+<!-- Dialog for getting user information -->
 <script type="text/ng-template" id="get-info.html">
   <div class="heading">Enter your information to view high scores and your ranking</div>
   <form name="myForm" ng-submit="myForm.$valid && sendScoreToServer(userName, userEmail)" novalidate>
@@ -45,6 +47,7 @@
    </form>
 </script>
 
+<!-- Dialog to show highscores -->
 <script type="text/ng-template" id="show-high-scores.html">
   <div class="heading">High Scores</div>
     <div class="body">
@@ -69,6 +72,5 @@
     </div>
     <div class="footer">
       <input type="button" class="btn btn-sm dialog-close-btn" ng-click="closeThisDialog()" value="Cancel" />
-      <button class="btn btn-primary" ng-click="initializeGame()">Play Again</button>
    </div>
 </script>

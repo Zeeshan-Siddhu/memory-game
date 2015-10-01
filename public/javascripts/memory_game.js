@@ -56,6 +56,11 @@
     $scope.ranking         = 0;
     $scope.userMaxScore    = 0;
 
+
+    $scope.resetGame = function(){
+       window.location.reload();
+    }
+
     $scope.openGetInfoDialog  = function(){
       $(document).off("keydown");
       ngDialog.open({ template: 'get-info.html',
@@ -64,7 +69,6 @@
 
     $scope.showHighScoresAndRanking = function(){
       ngDialog.open({ template: 'show-high-scores.html', showClose: true,
-          closeByDocument: true,
           closeByEscape: true,
           scope: $scope });
     }
@@ -102,6 +106,7 @@
 
     $scope.initializeGame = function(e){
       ngDialog.closeAll();
+     
       $scope.selectedCard    = [-1, -1];
       $scope.focusedCard     = [0, 0];
       $scope.rowIndex        = 0;
@@ -225,7 +230,6 @@
         }
         $scope.changeView();
     };
-
 
   });
 
