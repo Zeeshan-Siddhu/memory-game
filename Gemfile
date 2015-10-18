@@ -19,10 +19,13 @@ gem 'jbuilder', '~> 2.0'
 gem 'sdoc', '~> 0.4.0', group: :doc
 
 gem 'figaro'
-gem 'rake', '=10.4.2' # https://github.com/ruby/rake/blob/master/History.rdoc
+# gem 'rake', '=10.4.2' # https://github.com/ruby/rake/blob/master/History.rdoc
 
 gem 'puma'
 
+gem 'execjs'
+gem 'turbolinks'
+gem 'therubyracer'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
