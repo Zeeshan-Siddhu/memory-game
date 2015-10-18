@@ -181,6 +181,7 @@ DEPENDENCIES
   puma
   rails (= 4.2.0)
   rails_12factor
+  rake (= 10.4.2)
   sdoc (~> 0.4.0)
   spring
   web-console (~> 2.0)

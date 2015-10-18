@@ -19,6 +19,8 @@ gem 'jbuilder', '~> 2.0'
 gem 'sdoc', '~> 0.4.0', group: :doc
 
 gem 'figaro'
+gem 'rake', '=10.4.2' # https://github.com/ruby/rake/blob/master/History.rdoc
+
 gem 'puma'
 
 # Use ActiveModel has_secure_password
