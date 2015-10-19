@@ -118,8 +118,8 @@
       $scope.score           = 0;
       $scope.colors = ['colour1','colour1','colour2','colour2','colour3','colour3','colour4','colour4',
              'colour5','colour5','colour6','colour6','colour7','colour7','colour8','colour8'];
-      $('.loading_page').remove();
-      var board = $('.board');
+      angular.element('.loading_page').remove();
+      var board = angular.element('.board');
       $scope.colors = $scope.doShuffle($scope.colors);
       $scope.colors.reshape();
       board.html('');
@@ -137,12 +137,12 @@
     }
 
     $scope.changeView = function() {
-      $('.card').removeClass('focused');
-      $($scope.getJquerySelectorForCard($scope.focusedCard)).addClass('focused');
+      angular.element('.card').removeClass('focused');
+      angular.element($scope.getJquerySelectorForCard($scope.focusedCard)).addClass('focused');
     }
 
     $scope.flipCard = function(card){
-      $($scope.getJquerySelectorForCard(card)).toggleClass('flipped');
+      angular.element($scope.getJquerySelectorForCard(card)).toggleClass('flipped');
     }
 
     $scope.incrementMoves = function(successful){
@@ -156,7 +156,7 @@
 
 
     $scope.freezeCard = function(card){
-      $($scope.getJquerySelectorForCard(card)).addClass('frozen');
+      angular.element($scope.getJquerySelectorForCard(card)).addClass('frozen');
     }
 
     $scope.compareCards = function(previousCard, focusedCard){
@@ -167,7 +167,7 @@
         $scope.freezeCard(previousCard);
         $scope.freezeCard(focusedCard);
         $scope.incrementMoves(true);
-        if($('.frozen').length == 16){
+        if(angular.element('.frozen').length == 16){
           $scope.openGetInfoDialog();
         }
        
@@ -215,7 +215,7 @@
           break;
 
           case 13:
-            if($($scope.getJquerySelectorForCard($scope.focusedCard)).hasClass('frozen')){
+            if(angular.element($scope.getJquerySelectorForCard($scope.focusedCard)).hasClass('frozen')){
               break;
             }
             if($scope.isFirstCardSelected()){

@@ -1,28 +1,17 @@
 == README
+Ruby version: 2.0.0
+angular version: 1.4
+db: postgreSql
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+'game_memory.js' contains the most client side angular logic. It is located in public/javacripts. And 'load_game.html' contains the HTMl logic located in puclic/partials.
 
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
-
-
-Please feel free to use a different markup language if you do not plan to run
-<tt>rake doc:app</tt>.
+App is deployed on heroku on following Url
+https://stark-beach-1376.herokuapp.com/
+To run on local machine follow these steps.
+Steps:
+  1)Install Ruby,  Bundler, PostgreSql, Node.js
+  2)cd to my project directory.
+  3)bundle
+  4)rake db:create
+  5)rake db:migrate
+  6)rails s

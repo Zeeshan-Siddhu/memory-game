@@ -3,7 +3,21 @@ body {
   padding-bottom: 40px;
 }
 
+.game-area{
+  width: 720px; max-width: 720px; background-color: grey; padding: 70px 50px; margin: auto;
+}
 
+.board{
+  width: 360px; display: inline-block;
+}
+
+.side-bar{
+  width: 260px; display: inline-block; float: right;
+}
+
+.game-info{
+  background-color: white;
+}
 .flipped {
   background: transparent url(../images/card_bg.gif) !important;
 }

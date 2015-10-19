@@ -1,9 +1,9 @@
 <div ng-init="initializeGame()" >
   <controls></controls>
-  <div style="width: 720px; max-width: 720px; background-color: grey; padding: 70px 50px; margin: auto;">
-    <div style="width: 260px; display: inline-block; float: right;">
+  <div class="game-area">
+    <div class="side-bar">
       <div class="logo"></div>
-      <div class='game-info' style="background-color: white;">
+      <div class='game-info'>
         <strong>Score</strong>
         <p>{{score}}</p>
         <p>Only keys are supported</p>
@@ -12,7 +12,7 @@
         <button class="btn btn-warning btn-sm btn-block" id='resetBtn' ng-click="resetGame()">Reset</button>
       </div>
     </div>
-    <div class='board' style="width: 360px; display: inline-block;"></div>
+    <div class='board'></div>
   </div>
 </div>
 
