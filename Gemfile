@@ -49,6 +49,11 @@ group :development, :test do
   gem 'capistrano-bundler', require: false
   gem 'capistrano-rvm'
 
+  gem 'rspec-rails', '~> 3.0.0'
+  gem 'factory_girl_rails'
+  gem 'capybara'
+  gem 'database_cleaner'
+
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
 end
